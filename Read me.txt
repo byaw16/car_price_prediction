@@ -1,0 +1,43 @@
+------------------------------
+#-----------------------------
+# Benjamin Yaw Koko
+# index Num :2526500327
+# -----------------------------
+
+Car Price Predictor
+
+A simple web application to predict car prices based on basic features using a trained machine learning model in Python.
+
+Features
+Predicts car price from:
+Production year
+Levy
+Mileage (km)
+Number of cylinders
+Number of airbags
+Automatically computes car age
+Handles negative predictions safely
+Simple, responsive web interface
+Requirements
+Python 3.8+
+PHP 7+ (for the web interface)
+
+Python packages:
+
+pip install pandas joblib scikit-learn
+Anaconda Python is optional but recommended for Windows
+Installation
+Clone or download the repository.
+Place predict_price.py, model.pkl, and feature_cols.pkl in the same folder.
+Ensure your PHP server (XAMPP, WAMP, or similar) points to the folder.
+Usage
+Open index.php in a browser.
+Fill in the car details in the form.
+Click Predict Price.
+The predicted car price will be displayed below the form.
+File Structure
+project/
+├── index.php          # Main web interface
+├── predict_price.py     # Python script for prediction
+├── model.pkl            # Trained ML model
+├── README.md            # Project documentation
