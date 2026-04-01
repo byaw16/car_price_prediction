@@ -1,14 +1,20 @@
 import sys
 import json
 import re
+import base64
 import pickle
 import numpy as np
 import pandas as pd
+from pathlib import Path
+from datetime import datetime
 
 # -----------------------------
 # Load trained model bundle
 # -----------------------------
-with open("model.pkl", "rb") as f:
+BASE_DIR = Path(__file__).resolve().parent
+MODEL_PATH = BASE_DIR / "model.pkl"
+
+with open(MODEL_PATH, "rb") as f:
     bundle = pickle.load(f)
 
 # model.pkl from your notebook stores a dict:
@@ -29,9 +35,14 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 try:
-    data = json.loads(sys.argv[1])
-except json.JSONDecodeError as e:
-    print("Invalid JSON:", e)
+    raw_arg = sys.argv[1]
+    try:
+        decoded = base64.b64decode(raw_arg).decode("utf-8")
+        data = json.loads(decoded)
+    except Exception:
+        data = json.loads(raw_arg)
+except Exception as e:
+    print("Invalid input payload:", e)
     sys.exit(1)
 
 # -----------------------------
@@ -56,7 +67,8 @@ if "engine_volume" in data:
 # car_age from prod_year
 if "car_age" not in data:
     try:
-        data["car_age"] = 2026 - float(data["prod_year"])
+        current_year = datetime.now().year
+        data["car_age"] = current_year - float(data["prod_year"])
     except Exception:
         data["car_age"] = np.nan
 
@@ -80,12 +92,11 @@ row = {col: data.get(col, np.nan) for col in feature_cols}
 df_input = pd.DataFrame([row])
 
 # Predict
-
 pred = model.predict(df_input)[0]
 pred_value = max(float(pred), 0.0)  # avoid negative price output
 
 print(f"{pred_value:.2f}")
-print() 
+print()
 # Simple interpretation based on your dataset price distribution
 if pred_value < 5331:
     level = "Budget range"
@@ -95,6 +106,6 @@ elif pred_value < 22075:
     level = "Mid range"
 else:
     level = "Premium range"
-print() 
-print(f"\nInterpretation: Estimated car price is in the {level}.")
+print()
+print(f"Interpretation: Estimated car price is in the {level}.")
 print("Note: This is a rough estimate from a linear regression model.")
